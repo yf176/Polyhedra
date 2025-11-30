@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "polyhedra": {
+      "command": "uvx",
+      "args": ["--from", "polyhedra", "polyhedra"],
+      "env": {},
+      "disabled": false
+    }
+  }
+}

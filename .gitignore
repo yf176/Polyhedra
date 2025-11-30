@@ -1,0 +1,68 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE - User-specific configs (keep templates in ide-integration/)
+.vscode/settings.json
+.cursor/
+.windsurf/
+.cursorrules
+.idea/
+*.swp
+*.swo
+*~
+
+# Keep templates for distribution
+!.vscode/settings.json.template
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Type checking
+.mypy_cache/
+.pytype/
+
+# Ruff cache
+.ruff_cache/
+
+# BMAD Methodology (keep separate from implementation)
+.bmad-core/
+.github/chatmodes/
+
+# Project specific
+.poly/
+references.bib
+literature/
+ideas/
+method/
+paper/
+
+# OS
+.DS_Store
+Thumbs.db

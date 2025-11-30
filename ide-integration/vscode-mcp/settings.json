@@ -1,0 +1,21 @@
+{
+  "mcp.servers": {
+    "polyhedra": {
+      "command": "uvx",
+      "args": ["--from", "polyhedra", "polyhedra"],
+      "env": {}
+    }
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.linting.enabled": true,
+  "python.linting.ruffEnabled": true,
+  "python.formatting.provider": "none",
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  }
+}

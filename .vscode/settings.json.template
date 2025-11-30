@@ -1,0 +1,14 @@
+{
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "When working on research projects, use the Polyhedra MCP tools to search papers, manage citations, and organize literature."
+    }
+  ],
+  "mcp.servers": {
+    "polyhedra": {
+      "command": "uvx",
+      "args": ["--from", "polyhedra", "polyhedra"],
+      "env": {}
+    }
+  }
+}

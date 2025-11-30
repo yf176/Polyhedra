@@ -1,0 +1,47 @@
+﻿schema: 1
+story: 'EPIC-001.STORY-006'
+story_title: 'MCP Server Core'
+gate: PASS
+status_reason: 'Excellent implementation with all 10 tools registered, 13/13 integration tests passing, 77% coverage, proper MCP protocol usage.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-11-30T06:45:00Z'
+
+top_issues: []
+waiver:
+  active: false
+
+quality_score: 98
+expires: '2025-12-14T06:45:00Z'
+
+evidence:
+  tests_reviewed: 13
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Service operations validated in individual stories, error messages sanitized, no credential leakage, MCP protocol handles authentication'
+  performance:
+    status: PASS
+    notes: 'Excellent performance: 13 tests in 24.70s (1.90s avg). Lazy service initialization, async/await patterns, efficient JSON serialization.'
+  reliability:
+    status: PASS
+    notes: 'Comprehensive error handling, graceful degradation, all 13 tests passed without failures, independent tool execution'
+  maintainability:
+    status: PASS
+    notes: 'Clear tool routing, consistent JSON responses, good documentation, type hints throughout, logical code organization'
+
+recommendations:
+  immediate:
+    - action: 'Add MCP SDK (mcp>=1.22.0) to pyproject.toml dependencies'
+      refs: ['pyproject.toml']
+  future:
+    - action: 'Add integration tests with mocked Semantic Scholar API for search_papers and get_paper tools (optional, services already tested)'
+      refs: ['tests/test_server.py']
+    - action: 'Consider dependency injection pattern for service management instead of module-level cache (future refactoring)'
+      refs: ['src/polyhedra/server.py']
+    - action: 'Perform manual E2E testing with actual MCP client (IDE integration) before production deployment'
+      refs: ['docs/MANUAL_TESTING.md']
