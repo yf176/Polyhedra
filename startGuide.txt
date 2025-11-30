@@ -1,0 +1,74 @@
+================================================================
+                  Polyhedra Quick Start Guide
+================================================================
+
+Due to PowerShell execution policy restrictions, use these methods:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Method 1: Use Batch Files (Recommended - Easiest)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Double-click to run:
+   - test_quick.bat     (Quick diagnostic)
+   - run_demo.bat       (Run demo)
+
+2. Or run in command line:
+   test_quick.bat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Method 2: Use Python Directly
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Copy these commands to command line:
+
+REM Quick diagnostic
+.venv\Scripts\python.exe test_fix.py
+
+REM Run demo
+.venv\Scripts\python.exe demo_search.py
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Method 3: Bypass PowerShell Restrictions (Optional)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Run in PowerShell (current session only):
+
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+
+Then you can run:
+.\test_quick.ps1
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 🚀 Start MCP Server (Not Affected by This Issue)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MCP server starts automatically, you only need to:
+
+1. In VS Code press Ctrl+Shift+P
+2. Type "Reload Window" and execute
+3. Test in Copilot chat: "Search for transformer papers"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 📋 Complete Workflow
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+First time use:
+
+1. Double-click test_quick.bat  or run: .venv\Scripts\python.exe test_fix.py
+   ↓
+2. Reload VS Code (Ctrl+Shift+P -> Reload Window)
+   ↓
+3. Test features in Copilot chat
+   ↓
+4. Start your research!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 📚 More Help
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- PowerShell issues:       docs/POWERSHELL_FIX.md
+- MCP configuration:       docs/FIX_GUIDE.md
+- Complete startup guide:  docs/START_GUIDE.md
+- Quick start (no PS):     docs/QUICK_START_NO_PS.md
+
+================================================================
