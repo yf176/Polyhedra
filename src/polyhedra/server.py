@@ -11,6 +11,8 @@ from mcp.types import TextContent, Tool
 
 from polyhedra.services.citation_manager import CitationManager
 from polyhedra.services.context_manager import ContextManager
+from polyhedra.services.literature_review_service import LiteratureReviewService
+from polyhedra.services.llm_service import LLMService
 from polyhedra.services.project_initializer import ProjectInitializer
 from polyhedra.services.rag_service import RAGService
 from polyhedra.services.semantic_scholar import SemanticScholarService
@@ -21,10 +23,59 @@ app = Server("polyhedra")
 # Service instances (initialized lazily)
 _services: dict[str, Any] = {}
 
+# Constants
+DEFAULT_PAPERS_PATH = "literature/papers.json"
+
 
 def get_project_root() -> Path:
     """Get project root directory from current working directory."""
     return Path.cwd()
+
+
+def _generate_bibtex(paper: dict) -> str:
+    """Generate BibTeX entry from paper metadata."""
+    title = paper.get("title", "")
+    year = paper.get("year", "")
+    
+    if not title or not year:
+        return ""
+    
+    # Extract and format authors
+    authors_str, first_author_last = _format_authors_for_bibtex(paper.get("authors", []))
+    
+    # Generate citation key and entry
+    citation_key = f"{first_author_last}{year}"
+    entry_type = "inproceedings" if paper.get("venue") else "article"
+    
+    bibtex = f"@{entry_type}{{{citation_key},\n  title = {{{title}}},\n  author = {{{authors_str}}},\n  year = {{{year}}}"
+    
+    if paper.get("venue"):
+        bibtex += f",\n  booktitle = {{{paper['venue']}}}"
+    
+    if paper.get("paperId"):
+        bibtex += f",\n  note = {{Semantic Scholar ID: {paper['paperId']}}}"
+    
+    return bibtex + "\n}\n"
+
+
+def _format_authors_for_bibtex(authors: list) -> tuple[str, str]:
+    """Format authors for BibTeX entry."""
+    if not authors:
+        return "Unknown", "unknown"
+    
+    # Extract author names
+    if isinstance(authors[0], dict):
+        author_names = [a.get("name", "") for a in authors if a.get("name")]
+    else:
+        author_names = authors
+    
+    if not author_names:
+        return "Unknown", "unknown"
+    
+    authors_str = " and ".join(author_names)
+    first_author_last = author_names[0].split()[-1].lower() if author_names[0] else "unknown"
+    
+    return authors_str, first_author_last
 
 
 def get_services() -> dict[str, Any]:
@@ -36,6 +87,12 @@ def get_services() -> dict[str, Any]:
         _services["context_manager"] = ContextManager(project_root)
         _services["rag_service"] = RAGService(project_root)
         _services["project_initializer"] = ProjectInitializer(project_root)
+        
+        # Initialize LLM services (optional - gracefully handles missing config)
+        _services["llm_service"] = LLMService()
+        _services["literature_review"] = LiteratureReviewService(
+            llm_service=_services["llm_service"]
+        )
     return _services
 
 
@@ -202,6 +259,50 @@ async def list_tools() -> list[Tool]:
                 },
             },
         ),
+        Tool(
+            name="generate_literature_review",
+            description="Generate a structured literature review from papers using AI synthesis",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "papers_file": {
+                        "type": "string",
+                        "description": f"Path to papers JSON file (from search_papers) [default: {DEFAULT_PAPERS_PATH}]",
+                    },
+                    "focus": {
+                        "type": "string",
+                        "description": "Optional focus area (e.g., 'sparse attention mechanisms')",
+                    },
+                    "structure": {
+                        "type": "string",
+                        "enum": ["thematic", "chronological", "methodological"],
+                        "description": "Organization structure for the review",
+                        "default": "thematic",
+                    },
+                    "depth": {
+                        "type": "string",
+                        "enum": ["brief", "standard", "comprehensive"],
+                        "description": "Review depth: brief (500-800 words), standard (1500-2500 words), comprehensive (2000-3000 words)",
+                        "default": "standard",
+                    },
+                    "include_gaps": {
+                        "type": "boolean",
+                        "description": "Whether to identify research gaps",
+                        "default": True,
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "Where to save the generated review",
+                        "default": "literature/review.md",
+                    },
+                    "llm_model": {
+                        "type": "string",
+                        "description": "LLM model to use (optional, uses default)",
+                    },
+                },
+                "required": [],
+            },
+        ),
     ]
 
 
@@ -267,8 +368,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
                     )
                 ]
 
-            with open(papers_file, encoding="utf-8") as f:
-                papers = json.load(f)
+            # Read papers using Path.read_text (sync I/O acceptable for config files)
+            papers = json.loads(papers_file.read_text(encoding="utf-8"))
 
             service.index_papers(papers)
             return [
@@ -337,6 +438,82 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             service = services["project_initializer"]
             result = service.initialize(arguments.get("project_name"))
             return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        elif name == "generate_literature_review":
+            service = services["literature_review"]
+            
+            # Load papers from file
+            papers_path = arguments.get("papers_file", DEFAULT_PAPERS_PATH)
+            papers_file = get_project_root() / papers_path
+            
+            if not papers_file.exists():
+                return [
+                    TextContent(
+                        type="text",
+                        text=json.dumps(
+                            {
+                                "error": f"Papers file not found: {papers_path}. "
+                                "Run search_papers first to generate papers.json."
+                            }
+                        ),
+                    )
+                ]
+            
+            # Read papers synchronously (acceptable for config/data files)
+            papers = json.loads(papers_file.read_text(encoding="utf-8"))
+            
+            if not papers:
+                return [
+                    TextContent(
+                        type="text",
+                        text=json.dumps(
+                            {"error": "Papers file is empty. Search for papers first."}
+                        ),
+                    )
+                ]
+            
+            # Generate review
+            result = await service.generate_review(
+                papers=papers,
+                focus=arguments.get("focus"),
+                structure=arguments.get("structure", "thematic"),
+                depth=arguments.get("depth", "standard"),
+                include_gaps=arguments.get("include_gaps", True),
+                model=arguments.get("llm_model"),
+            )
+            
+            # Save review to file
+            output_path = arguments.get("output_path", "literature/review.md")
+            context_service = services["context_manager"]
+            context_service.write_file(output_path, result["review"])
+            
+            # Auto-add citations to references.bib
+            citation_service = services["citation_manager"]
+            citations_added = 0
+            for paper in papers:
+                # Generate BibTeX from paper metadata
+                bibtex = _generate_bibtex(paper)
+                if bibtex:
+                    _, was_added = citation_service.add_entry(bibtex)
+                    if was_added:
+                        citations_added += 1
+            
+            # Return success with metadata
+            return [
+                TextContent(
+                    type="text",
+                    text=json.dumps(
+                        {
+                            "success": True,
+                            "saved_to": output_path,
+                            "metadata": result["metadata"],
+                            "cost": result["cost"],
+                            "citations_added": citations_added,
+                        },
+                        indent=2,
+                    ),
+                )
+            ]
 
         else:
             return [

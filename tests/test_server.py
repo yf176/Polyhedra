@@ -30,9 +30,9 @@ class TestServerInitialization:
 
     @pytest.mark.asyncio
     async def test_list_tools_count(self):
-        """Should list all 10 tools."""
+        """Should list all 11 tools (10 existing + generate_literature_review)."""
         tools = await list_tools()
-        assert len(tools) == 10
+        assert len(tools) == 11
 
     @pytest.mark.asyncio
     async def test_list_tools_names(self):
@@ -51,6 +51,7 @@ class TestServerInitialization:
             "get_citations",
             "get_project_status",
             "init_project",
+            "generate_literature_review",
         }
 
         assert tool_names == expected_names
@@ -235,3 +236,22 @@ class TestServiceIntegration:
         data = json.loads(result[0].text)
         assert "error" in data
         assert "not indexed" in data["error"].lower()
+
+    @pytest.mark.asyncio
+    async def test_generate_literature_review_missing_papers(
+        self, temp_project, monkeypatch
+    ):
+        """Should handle missing papers file gracefully."""
+        monkeypatch.chdir(temp_project)
+
+        # Clear service cache
+        services = get_services()
+        services.clear()
+
+        result = await call_tool("generate_literature_review", {})
+        assert len(result) == 1
+
+        data = json.loads(result[0].text)
+        assert "error" in data
+        # Should handle either missing file or empty file
+        assert "not found" in data["error"].lower() or "empty" in data["error"].lower()
