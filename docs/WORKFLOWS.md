@@ -16,9 +16,9 @@ Complete workflow examples for common research tasks using Polyhedra.
 
 ## Literature Review Workflow
 
-**Goal**: Write a comprehensive literature review on a specific topic.
+### Classic Workflow (v2.0)
 
-### Step-by-Step Process
+**Goal**: Manually write a comprehensive literature review on a specific topic.
 
 #### 1. Initialize Project
 
@@ -97,6 +97,151 @@ Add this citation with key "vaswani2017attention":
 ```
 
 Repeat for 20-30 key papers.
+
+---
+
+### AI-Powered Literature Review Workflow (v2.1) 🆕
+
+**Goal**: Generate structured literature review automatically from paper collection.
+
+**Prerequisites**: LLM API key configured (see [SETUP.md](SETUP.md))
+
+#### Quick Workflow (Simple Review)
+
+```
+1. "Search for 40 papers on efficient transformer architectures"
+2. "Generate a standard literature review focused on mobile deployment"
+3. Done! Review saved to literature/review.md
+```
+
+**Time**: 3-5 minutes | **Cost**: ~$0.15
+
+#### Comprehensive Workflow (High-Quality Review)
+
+**Step 1: Project Setup**
+```
+"Initialize research project called 'efficient-transformers-2024'"
+```
+
+**Step 2: Collect Papers (Curated)**
+```
+"Search for papers on efficient transformers from 2022-2024, limit 60"
+```
+
+Review search results, save the best 40-50:
+```
+"Save the top 45 papers to literature/papers.json"
+```
+
+**Step 3: Cost Estimation**
+```
+"Estimate cost for generating a comprehensive review of these papers"
+```
+
+Expected response: `{"estimated_usd": 0.28, "paper_count": 45, "depth": "comprehensive"}`
+
+**Step 4: Generate Review**
+```
+"Generate a comprehensive literature review focused on edge device deployment, using thematic structure"
+```
+
+**Step 5: Review Output**
+
+Open `literature/review.md` to see:
+- Overview of field
+- Taxonomy of approaches
+- Critical analysis
+- Research gaps
+- Conclusion
+- All papers properly cited
+- All citations added to references.bib
+
+**Step 6: Refine (Optional)**
+
+If review needs improvement:
+```
+"Generate another review focusing specifically on quantization techniques"
+```
+
+Or manually edit the generated review.
+
+**Step 7: Extract Research Gaps**
+
+Review identifies gaps automatically. To explore further:
+```
+"Search for papers addressing [specific gap identified]"
+```
+
+#### Time & Cost Breakdown
+
+| Depth Level | Papers | Time | Cost | Use Case |
+|-------------|--------|------|------|----------|
+| **Brief** | 30 | 2 min | $0.08 | Quick overview, presentation prep |
+| **Standard** | 50 | 3 min | $0.15 | Paper background section |
+| **Comprehensive** | 75 | 5 min | $0.35 | Dissertation chapter |
+
+#### Advanced: Iterative Refinement
+
+**Scenario**: Start broad, then focus on specific gaps
+
+```
+# Iteration 1: Broad overview
+1. "Search for 50 papers on transformer efficiency"
+2. "Generate brief review to understand the landscape"
+
+# Iteration 2: Identify focus
+3. Review the output, identify interesting sub-area
+4. "Search for 30 more papers specifically on knowledge distillation for transformers"
+
+# Iteration 3: Comprehensive focused review
+5. "Add new papers to literature/papers.json"
+6. "Generate comprehensive review focused on knowledge distillation techniques"
+```
+
+#### Tips for Best Results
+
+**Paper Selection**:
+- ✅ **DO**: Include 20-50 highly relevant papers
+- ✅ **DO**: Mix foundational papers and recent work
+- ❌ **DON'T**: Include >100 papers (high cost, may hit limits)
+- ❌ **DON'T**: Include tangentially related papers
+
+**Focus Parameter**:
+- ✅ **Specific**: "quantization for edge devices"
+- ✅ **Actionable**: "real-time inference optimization"
+- ❌ **Too broad**: "machine learning"
+- ❌ **Too vague**: "improvements"
+
+**Structure Selection**:
+- **Thematic**: Most versatile, recommended default
+- **Chronological**: When field evolution matters
+- **Methodological**: When comparing techniques
+
+**Cost Management**:
+- Always estimate first for >50 papers
+- Start with brief, expand to comprehensive if needed
+- Use focus parameter to reduce output length
+
+---
+
+### Comparison: Manual vs AI-Powered
+
+| Aspect | Manual (v2.0) | AI-Powered (v2.1) |
+|--------|---------------|-------------------|
+| **Time** | 5-10 hours | 3-5 minutes |
+| **Cost** | Free (your time) | $0.08-0.35 |
+| **Quality** | Varies by skill | Consistent baseline |
+| **Customization** | Full control | Focus + structure params |
+| **Citations** | Manual formatting | Auto-formatted |
+| **Research Gaps** | Manual analysis | Auto-identified |
+| **Best For** | Final polish, domain expertise | First draft, time savings |
+
+**Recommended Hybrid Approach**:
+1. Use AI to generate initial draft (v2.1)
+2. Manually refine and add domain insights (v2.0 mindset)
+3. Result: High-quality review in 20% of the time
+
+---
 
 #### 7. Draft Literature Review
 

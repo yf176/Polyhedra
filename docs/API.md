@@ -2,6 +2,8 @@
 
 Complete reference for all Polyhedra MCP tools.
 
+**Version 2.1** includes 12 tools total (10 from v2.0 + 2 new literature review tools).
+
 ## Table of Contents
 
 1. [Literature Search](#literature-search)
@@ -14,11 +16,15 @@ Complete reference for all Polyhedra MCP tools.
    - [add_citation](#add_citation)
    - [get_citations](#get_citations)
 
-3. [File Operations](#file-operations)
+3. [**🆕 Literature Review Generation (v2.1)**](#literature-review-generation-v21)
+   - [generate_literature_review](#generate_literature_review)
+   - [estimate_review_cost](#estimate_review_cost)
+
+4. [File Operations](#file-operations)
    - [save_file](#save_file)
    - [get_context](#get_context)
 
-4. [Project Management](#project-management)
+5. [Project Management](#project-management)
    - [init_project](#init_project)
    - [get_project_status](#get_project_status)
 
@@ -796,6 +802,200 @@ Show me the status of my research project
 - Use `init_project` to create project
 - Use `get_context` to read specific files
 - Use `get_citations` for detailed citation info
+
+---
+
+## Literature Review Generation (v2.1)
+
+### generate_literature_review
+
+Generate structured academic literature review from paper collection.
+
+**Purpose**: Synthesize 10-100 papers into coherent academic review with proper citations, taxonomy, critical analysis, and research gaps.
+
+**Prerequisites**: 
+- LLM API key configured (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`)
+- Papers file from `search_papers` or manually created JSON
+
+**Parameters**:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `papers_file` | string | No | Path to papers JSON (default: "literature/papers.json") |
+| `focus` | string | No | Specific focus area for review |
+| `structure` | string | No | Organization: "thematic"/"chronological"/"methodological" (default: "thematic") |
+| `depth` | string | No | Review depth: "brief"/"standard"/"comprehensive" (default: "standard") |
+| `include_gaps` | boolean | No | Include research gaps section (default: true) |
+| `output_path` | string | No | Where to save review (default: "literature/review.md") |
+| `llm_model` | string | No | Model override (default: claude-3-5-sonnet-20241022) |
+
+**Returns**:
+
+```json
+{
+  "success": true,
+  "saved_to": "literature/review.md",
+  "metadata": {
+    "paper_count": 47,
+    "word_count": 3542,
+    "sections": ["Overview", "Taxonomy", "Critical Analysis", "Research Gaps", "Conclusion"],
+    "citations_found": 45,
+    "citation_coverage": 0.96,
+    "research_gaps": [
+      {
+        "title": "Efficiency at Scale",
+        "description": "Current transformers struggle with sequences >10K tokens"
+      }
+    ]
+  },
+  "cost": {
+    "input_tokens": 18234,
+    "output_tokens": 5890,
+    "total_tokens": 24124,
+    "total_usd": 0.14
+  },
+  "citations_added": 47
+}
+```
+
+**Review Depth Levels**:
+
+| Depth | Words | Pages | Cost (50 papers) | Use Case |
+|-------|-------|-------|------------------|----------|
+| **brief** | ~650 | 2-3 | $0.08-0.12 | Quick overview, presentation prep |
+| **standard** | ~2000 | 5-8 | $0.12-0.20 | Paper background section, grant proposals |
+| **comprehensive** | ~2500 | 10-15 | $0.20-0.35 | Dissertation chapters, major surveys |
+
+**Structure Types**:
+
+- **thematic**: Groups papers by research themes and approaches (recommended for most cases)
+- **chronological**: Orders papers by publication timeline (good for tracking field evolution)
+- **methodological**: Organizes by research methods used (good for comparing techniques)
+
+**Example Usage**:
+
+```
+"Generate a literature review from my papers focused on mobile deployment"
+```
+
+```
+"Generate a comprehensive review with chronological structure"
+```
+
+```
+"Generate brief review without research gaps, save to method/background.md"
+```
+
+**Common Patterns**:
+
+1. **Quick Synopsis**: Use `depth="brief"` for rapid overview
+2. **Focused Review**: Set `focus` parameter to narrow scope
+3. **Cost-Conscious**: Use `estimate_review_cost` first
+4. **Custom Location**: Set `output_path` to save anywhere in project
+5. **Chronological Survey**: Use `structure="chronological"` for historical perspective
+
+**Error Scenarios**:
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "LLM service not configured" | Missing API key | Set `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` |
+| "Papers file not found" | No papers.json | Run `search_papers` first or create file |
+| "Papers file is empty" | Empty JSON array | Search for papers or add manually |
+| "API rate limit exceeded" | Too many requests | Wait 60 seconds and retry |
+| "Token limit exceeded" | Too many papers | Reduce paper count or use brief depth |
+
+**Cost Guidance**:
+
+- **25 papers, brief**: $0.05-0.08
+- **50 papers, standard**: $0.12-0.20
+- **75 papers, comprehensive**: $0.25-0.40
+- **100 papers, comprehensive**: $0.35-0.60
+
+Cost scales with:
+- Number of papers (more input tokens)
+- Review depth (more output tokens)
+- Model choice (Claude Sonnet < GPT-4 Turbo)
+
+**Output Format**:
+
+Generated review includes:
+- **Overview**: Field introduction and scope
+- **Taxonomy**: Hierarchical organization of approaches
+- **Critical Analysis**: Strengths, weaknesses, comparisons
+- **Research Gaps** (if enabled): Underexplored areas and opportunities
+- **Conclusion**: Summary and future directions
+- **Proper Citations**: All papers cited as `[Author et al., Year]`
+
+**Related Tools**:
+- Use `search_papers` to find papers first
+- Use `estimate_review_cost` to check cost before generation
+- Use `add_citation` to add more citations manually
+- Use `save_file` to modify and save the review
+
+---
+
+### estimate_review_cost
+
+Estimate cost before generating literature review.
+
+**Purpose**: Get accurate cost estimate without consuming API credits. Helps budget and plan expensive operations.
+
+**Parameters**:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `paper_count` | number | Yes | Number of papers to review |
+| `depth` | string | No | Review depth (default: "standard") |
+| `llm_model` | string | No | Model to use (affects pricing) |
+
+**Returns**:
+
+```json
+{
+  "estimated_input_tokens": 18000,
+  "estimated_output_tokens": 2000,
+  "estimated_total_tokens": 20000,
+  "estimated_usd": 0.15,
+  "paper_count": 50,
+  "depth": "standard"
+}
+```
+
+**Example Usage**:
+
+```
+"Estimate cost for reviewing 75 papers with comprehensive depth"
+```
+
+```
+"How much will it cost to generate a brief review of 30 papers?"
+```
+
+**Cost Examples**:
+
+| Papers | Depth | Model | Estimated Cost |
+|--------|-------|-------|----------------|
+| 25 | brief | Claude Sonnet | $0.05-0.08 |
+| 50 | standard | Claude Sonnet | $0.12-0.20 |
+| 50 | standard | GPT-4 Turbo | $0.30-0.40 |
+| 75 | comprehensive | Claude Sonnet | $0.25-0.40 |
+| 100 | comprehensive | Claude Sonnet | $0.40-0.65 |
+
+**When to Use**:
+
+- Before generating reviews with >50 papers
+- When using comprehensive depth
+- When working with budget constraints
+- Before batch processing multiple reviews
+
+**Accuracy**: Estimates are typically within ±20% of actual cost. Actual cost depends on:
+- Actual paper abstract lengths (estimated at 300 words avg)
+- LLM's response length (may vary from target)
+- Model pricing changes
+
+**Related Tools**:
+- Use before `generate_literature_review` for cost-conscious workflows
+- Combine with `get_project_status` to track total costs
 
 ---
 
