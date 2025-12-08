@@ -199,6 +199,406 @@ eferences.bib
 
 ---
 
+## Literature Review Generation (v2.1) 🆕
+
+Generate AI-powered literature reviews from your paper collection.
+
+### Prerequisites
+
+1. **Papers collected** via `search_papers` or manual JSON file
+2. **LLM API key configured** (see [Setup Guide](SETUP.md))
+   - Anthropic (recommended): `export ANTHROPIC_API_KEY=sk-ant-...`
+   - OpenAI (alternative): `export OPENAI_API_KEY=sk-...`
+
+### Basic Workflow
+
+#### Step 1: Search and Collect Papers
+
+```
+"Search for 50 papers on transformer efficiency techniques"
+```
+
+Papers automatically saved to `literature/papers.json`
+
+#### Step 2: Estimate Cost (Recommended)
+
+```
+"Estimate cost for reviewing these 50 papers with standard depth"
+```
+
+Returns: `{"estimated_usd": 0.15, "paper_count": 50, "depth": "standard"}`
+
+#### Step 3: Generate Review
+
+```
+"Generate a literature review from my papers focused on mobile deployment"
+```
+
+Generates:
+- `literature/review.md` - Structured academic review
+- Auto-adds all citations to `references.bib`
+- Returns metadata and actual cost
+
+#### Step 4: Review and Refine
+
+Open `literature/review.md` to see:
+- ✅ **Overview**: Field introduction and scope
+- ✅ **Taxonomy**: Hierarchical organization of approaches
+- ✅ **Critical Analysis**: Strengths, weaknesses, comparisons
+- ✅ **Research Gaps**: Underexplored areas and opportunities
+- ✅ **Conclusion**: Summary and future directions
+- ✅ **Proper Citations**: All papers cited as `[Author et al., Year]`
+
+### Review Depth Levels
+
+Choose the right depth for your use case:
+
+#### Brief (~650 words, 2-3 pages)
+**Best for**: Quick overviews, presentation prep, initial exploration
+
+```
+"Generate a brief literature review"
+```
+
+**Output**:
+- High-level overview
+- Major themes only
+- 5-10 minute read
+- **Cost**: $0.05-0.12 (50 papers)
+
+#### Standard (~2000 words, 5-8 pages)
+**Best for**: Paper background sections, grant proposals, comprehensive understanding
+
+```
+"Generate a standard literature review"
+```
+
+**Output**:
+- Comprehensive coverage
+- Detailed taxonomy
+- Critical analysis
+- Research gaps section
+- 20-30 minute read
+- **Cost**: $0.12-0.25 (50 papers)
+
+#### Comprehensive (~2500 words, 10-15 pages)
+**Best for**: Dissertation chapters, major survey papers, formal publications
+
+```
+"Generate a comprehensive literature review"
+```
+
+**Output**:
+- Exhaustive review
+- Deep analysis of each approach
+- Extensive gaps section
+- Methodology comparison
+- 45-60 minute read
+- **Cost**: $0.20-0.40 (50 papers)
+
+### Review Structure Types
+
+Choose how to organize your review:
+
+#### Thematic (Default)
+Groups papers by research themes and approaches.
+
+```
+"Generate a thematic literature review"
+```
+
+**Best for**: Understanding the landscape, identifying main directions
+
+**Example sections**:
+- Attention Mechanisms
+- Efficiency Techniques
+- Mobile Architectures
+- Quantization Methods
+
+#### Chronological
+Orders papers by publication timeline.
+
+```
+"Generate a chronological literature review"
+```
+
+**Best for**: Tracking field evolution, understanding historical context
+
+**Example sections**:
+- Early Work (2017-2019)
+- Breakthrough Period (2020-2021)
+- Recent Advances (2022-2024)
+
+#### Methodological
+Organizes by research methods used.
+
+```
+"Generate a methodological literature review"
+```
+
+**Best for**: Comparing approaches, identifying methodology gaps
+
+**Example sections**:
+- Neural Architecture Search
+- Knowledge Distillation
+- Pruning and Quantization
+- Hardware-Aware Design
+
+### Advanced Usage
+
+#### Focused Review
+Narrow the scope to specific aspects:
+
+```
+"Generate a comprehensive review focused on quantization techniques for edge devices"
+```
+
+The `focus` parameter helps the LLM:
+- Prioritize relevant papers
+- Emphasize specific aspects
+- Filter out tangential content
+- Provide deeper analysis of focus area
+
+#### Custom Output Location
+
+```
+"Generate a review and save to method/related-work.md"
+```
+
+#### Specific Model Selection
+
+```
+"Generate review using GPT-4 Turbo"
+```
+
+Available models:
+- `claude-3-5-sonnet-20241022` (default, recommended)
+- `claude-3-opus-20240229` (higher quality, higher cost)
+- `gpt-4o` (OpenAI default)
+- `gpt-4-turbo` (OpenAI alternative)
+
+#### Skip Research Gaps
+
+```
+"Generate a brief review without research gaps section"
+```
+
+Useful when you only need synthesis, not gap analysis.
+
+### Cost Management
+
+#### Always Estimate First
+
+For large collections or expensive depths:
+
+```
+"Estimate cost before generating a comprehensive review of 100 papers"
+```
+
+Returns detailed cost breakdown before spending credits.
+
+#### Understanding Cost Warnings
+
+If estimated cost > $0.10, Polyhedra will warn you:
+
+```
+⚠️ Estimated cost: $0.25 for comprehensive review of 75 papers
+Add confirm_cost=true to proceed
+```
+
+To proceed:
+```
+"Generate the review with confirm_cost=true"
+```
+
+#### Budget Limits
+
+Default maximum cost: **$1.00 per operation**
+
+To change:
+```bash
+export POLYHEDRA_MAX_COST=0.50  # Set lower limit
+```
+
+Polyhedra will block operations exceeding the limit.
+
+To override (not recommended):
+```
+"Generate the review with force=true"
+```
+
+#### Tracking Costs
+
+Each generation returns actual cost:
+
+```json
+{
+  "cost": {
+    "input_tokens": 18234,
+    "output_tokens": 5890,
+    "total_tokens": 24124,
+    "total_usd": 0.14
+  }
+}
+```
+
+### Tips & Best Practices
+
+#### 1. Start Small
+Begin with brief reviews to understand output quality:
+```
+"Generate a brief review to see the format first"
+```
+
+#### 2. Curate Papers
+**Better input = Better output**
+
+Ideal paper count: **20-50 papers**
+- Too few (<10): Shallow analysis
+- Just right (20-50): Comprehensive but manageable
+- Too many (>100): May hit token limits or high costs
+
+#### 3. Use Focus Parameter
+Narrow scope improves relevance:
+```
+"Generate review focused on real-time inference optimization"
+```
+
+#### 4. Check Cost for Large Collections
+Always estimate for >50 papers:
+```
+"Estimate cost first for 80 papers"
+```
+
+#### 5. Iterate Depth Levels
+Progressive refinement:
+1. Start with `brief` for quick overview
+2. Expand to `standard` for more detail
+3. Use `comprehensive` only for formal publications
+
+#### 6. Manual Refinement
+Generated reviews are **starting points**:
+- Review for accuracy
+- Add domain-specific insights
+- Verify citations against source papers
+- Refine structure to match your needs
+
+#### 7. Combine with Search
+Iterative workflow:
+```
+1. "Search for initial papers on topic X"
+2. "Generate brief review"
+3. "Based on gaps, search for papers on Y"
+4. "Add new papers to literature/papers.json"
+5. "Generate updated standard review"
+```
+
+### Common Issues
+
+#### "LLM service not configured"
+
+**Cause**: Missing API key
+
+**Solution**:
+```bash
+# Choose one:
+export ANTHROPIC_API_KEY=sk-ant-your-key
+export OPENAI_API_KEY=sk-your-key
+
+# Restart IDE
+```
+
+Verify:
+```
+"Check if my LLM configuration is working"
+```
+
+#### "Papers file not found"
+
+**Cause**: No papers.json exists
+
+**Solution**:
+```
+"Search for papers first, then generate review"
+```
+
+Or manually create `literature/papers.json`:
+```json
+[
+  {
+    "title": "Paper Title",
+    "authors": [{"name": "Author Name"}],
+    "year": 2024,
+    "abstract": "Paper abstract...",
+    "venue": "Conference Name"
+  }
+]
+```
+
+#### "Papers file is empty"
+
+**Cause**: Empty JSON array `[]`
+
+**Solution**:
+```
+"Search for papers to populate the file"
+```
+
+#### "Cost exceeds configured limit"
+
+**Cause**: Estimated cost > `POLYHEDRA_MAX_COST`
+
+**Solutions**:
+1. Increase limit: `export POLYHEDRA_MAX_COST=1.50`
+2. Reduce paper count (filter to most relevant)
+3. Use brief depth instead of comprehensive
+4. Force execution: Add `force=true` (not recommended)
+
+#### "Review quality insufficient"
+
+**Causes & Solutions**:
+
+**Too generic**:
+- Add specific focus parameter
+- Curate papers more carefully
+- Try different structure type
+
+**Missing key papers**:
+- Verify papers.json includes them
+- Check citation coverage in metadata
+
+**Poor organization**:
+- Try different structure (thematic vs chronological)
+- Add focus to narrow scope
+
+**Shallow analysis**:
+- Upgrade from brief to standard/comprehensive
+- Reduce paper count for deeper analysis
+
+#### "Token limit exceeded"
+
+**Cause**: Too many papers for context window
+
+**Solutions**:
+1. Reduce paper count (aim for <75)
+2. Use brief depth (less output tokens)
+3. Split into multiple focused reviews
+
+### Cost Examples (Real Scenarios)
+
+| Scenario | Papers | Depth | Cost | Time |
+|----------|--------|-------|------|------|
+| Conference presentation prep | 20 | brief | $0.06 | 1-2 min |
+| Paper background section | 40 | standard | $0.14 | 2-3 min |
+| PhD qualifying exam | 60 | comprehensive | $0.28 | 3-4 min |
+| Grant proposal literature review | 50 | standard | $0.18 | 2-3 min |
+| Dissertation chapter | 80 | comprehensive | $0.42 | 4-5 min |
+| Survey paper | 100 | comprehensive | $0.55 | 5-6 min |
+
+*Costs are estimates for Anthropic Claude Sonnet. GPT-4 Turbo costs ~2.5x more.*
+
+---
+
 ### 2. Search Papers
 
 **What it does**: Searches Semantic Scholar for academic papers
